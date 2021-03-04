@@ -1,23 +1,16 @@
-import logo from './logo.svg';
 import './App.css';
+import CanvasDestroyer from './components/CanvasDestroyer/CanvasDestroyer'
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <CanvasDestroyer
+       currentPermittedWidth={200}
+       finalWidth = {200}
+       secretResolve = {191}
+       secretSize = {124}
+       vOff = {-4}
+      />
     </div>
   );
 }
