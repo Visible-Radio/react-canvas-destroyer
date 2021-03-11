@@ -7,22 +7,9 @@ export default function main(
 	currentPermittedWidth,
 	finalWidth,
 	secretResolve,
-	secretSize,
+	secretWidth,
 	vOff = 0
 	){
-
-	const hOff = Math.floor(((secretResolve - secretSize) / 2) + (finalWidth - secretResolve));
-	console.log(hOff);
-	const secretOffset = -(secretResolve*vOff) - hOff;
-	// secretOffset is relative to secret resolve - ie, secret resolive is
-	// the width available to the secret image for rendering
-	// so offsetting by the amount of secret resolve will offset one row
-	// y offset is resolve width * row
-	// x offset will be:
-	//((resolve width - secret width) / 2) + (background width - resolve)
-
-	// y offset will be:
-	// (bgHeight - secretHeight) / 2 * resolveWidth
 
 	// create img DOM node for the secret image
 	const secretImg = new Image()
@@ -50,6 +37,7 @@ export default function main(
 		}
 	},1);
 
+
 	function backgroundOnload(bgImg, secretImg, currentPermittedWidth) {
 		// get the pixel information for the background image
 		const sourceData = (getSourceData(bgCanvasRef, finalWidth, bgImg));
@@ -57,7 +45,8 @@ export default function main(
 		const canvas = destinationCanvasRef.current;
 		const ctx = canvas.getContext('2d');
 		const pixelScale = 4;
-		ctx.canvas.width = sourceData.width * pixelScale;
+		// ctx.canvas.width = sourceData.width * pixelScale;
+		ctx.canvas.width = currentPermittedWidth * pixelScale;
 		ctx.canvas.height = sourceData.height * pixelScale;
 		applySecretImage(sourceData, secretResolve, secretImg);
 		draw(currentPermittedWidth, sourceData, ctx, pixelScale);
@@ -72,14 +61,12 @@ export default function main(
 		source_ctx.canvas.height = targetHeight;
 		source_ctx.canvas.width = targetWidth;
 
-		console.log(DOM_Img_Node);
-		console.log(source_ctx.canvas.width, 'resampled width');
-		console.log(source_ctx.canvas.height, 'resampled height');
+		// console.log(DOM_Img_Node);
+		// console.log(source_ctx.canvas.width, 'resampled width');
+		// console.log(source_ctx.canvas.height, 'resampled height');
 
-		console.log(DOM_Img_Node.width, 'actual image width');
-		console.log(DOM_Img_Node.height, 'actual image height');
-
-
+		// console.log(DOM_Img_Node.width, 'actual image width');
+		// console.log(DOM_Img_Node.height, 'actual image height');
 
 		// input scaling happens here based on second pair of args
 		// this draws the image onto the source canvas, which is hidden using CSS
@@ -99,7 +86,7 @@ export default function main(
 	}
 
 	function secretOnload(secretImg){
-		const secretPixels = getSourceData(secretCanvasRef, secretSize, secretImg);
+		const secretPixels = getSourceData(secretCanvasRef, secretWidth, secretImg);
 		// create an array of functions
 		// each function describes where that pixel should be in a grid given a width
 		let functionArr = [];
@@ -115,6 +102,7 @@ export default function main(
 	}
 
 	function applySecretImage(sourceData, resolveWidth, secretImg) {
+		const secretOffset = calculateOffsets();
 		const secretData = secretOnload(secretImg);
 		// reduce brightness of background
 		for (let i = 0; i < sourceData.pixelArr.length; i++) {
@@ -127,6 +115,25 @@ export default function main(
 			// insert the pixels from the secret image into the background image
 			sourceData.pixelArr[secretData.functionArr[i](resolveWidth)-secretOffset] = secretData.pixelArr[i]+5;
 		}
+	}
+
+	function calculateOffsets() {
+		// always draw the secret in the center of the currentPermitted width
+		const hOff = Math.floor(((secretResolve - secretWidth) / 2) + 0);
+
+		const bgScaleFactor = (bgImg.width / finalWidth);
+		const bgHeight = (bgImg.height / bgScaleFactor);
+		const secretScaleFactor = (secretImg.width / secretWidth);
+		const secretHeight = (secretImg.height / secretScaleFactor);
+		const verticalCenter = Math.floor((bgHeight - secretHeight) / 2);
+
+		console.log('bgHeight :>> ', bgHeight);
+		console.log('secretHeight :>> ', secretHeight);
+		console.log('verticalCenter :>> ', verticalCenter);
+
+		const secretOffset = -(secretResolve*(verticalCenter+vOff)) - hOff;
+
+		return secretOffset;
 	}
 
 	function draw(permittedWidth, sourceData, ctx, pixelScale) {
@@ -145,7 +152,7 @@ export default function main(
 								ctx.fillStyle = `rgba(0,0,0,0)`;
 								ctx.fillRect(row*pixelScale, column*pixelScale, pixelScale, pixelScale);
 								ctx.fillStyle = `rgba(${pixel-25},${pixel-25},${pixel+10},1)`;
-								ctx.fillRect(row*pixelScale, column*pixelScale, pixelScale, pixelScale-0);
+								ctx.fillRect(row*pixelScale, column*pixelScale, pixelScale, pixelScale);
 
 								counter++;
 							}

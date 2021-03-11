@@ -1,18 +1,23 @@
+import { useState } from 'react';
 import './App.css';
 import CanvasDestroyer from './components/CanvasDestroyer/CanvasDestroyer'
 
+
 function App() {
+  let currentPermittedWidth = 191;
   return (
-    <div className="App">
+    <>
       <CanvasDestroyer
-       currentPermittedWidth={200}
-       finalWidth = {200}
+       currentPermittedWidth={currentPermittedWidth}
        secretResolve = {191}
-       secretSize = {124}
-       vOff = {-4}
+       finalWidth = {200}
+       secretWidth = {121}
+       vOff = {1}
+       scaleMode = {'auto'}
+       // SPECIFY custom CSS for the destination canvas
+       //  scaleMode = {{injectReactCSS : {width: '100%', height: '100%', border: '1px solid'}}}
       />
-    </div>
+    </>
   );
 }
-
 export default App;

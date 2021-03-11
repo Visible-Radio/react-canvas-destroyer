@@ -5,7 +5,14 @@ import skull from './skull.png';
 import jimi from './jimi.jpg';
 import main from './destroyerFunctions';
 
-export default function CanvasDestroyer( { currentPermittedWidth, finalWidth, secretResolve, secretSize, vOff }) {
+export default function CanvasDestroyer( { currentPermittedWidth,
+  finalWidth,
+  secretResolve,
+  secretWidth,
+  vOff,
+  scaleMode
+ })
+ {
   const bgCanvasRef = useRef(null);
   const secretCanvasRef = useRef(null);
   const destinationCanvasRef = useRef(null);
@@ -21,10 +28,21 @@ export default function CanvasDestroyer( { currentPermittedWidth, finalWidth, se
       currentPermittedWidth,
       finalWidth,
 	    secretResolve,
-	    secretSize,
+	    secretWidth,
       vOff || null
       );
   })
+
+  // depending on scale mode, inject different styles into destinationCanvas element
+  // scaleMode will be auto, fixed, or injectCSS
+
+  const innerStyles = () => {
+    if (!scaleMode || scaleMode === 'fixed') return null;
+    if (scaleMode === 'auto') return {width: '100%', height: '100%'}
+    if (typeof scaleMode === 'object' && scaleMode.hasOwnProperty('injectReactCSS')) {
+      return scaleMode.injectReactCSS;
+    }
+  }
 
   return (
     <div style={{}} className="textRendererWrapperInternal">
@@ -43,7 +61,7 @@ export default function CanvasDestroyer( { currentPermittedWidth, finalWidth, se
       <canvas
         ref = {destinationCanvasRef}
         className="TextRendererCanvasInternal destination"
-        style={{}}
+        style={innerStyles()}
       >
       </canvas>
     </div>
